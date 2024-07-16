@@ -1,0 +1,70 @@
+import requests
+import json
+import time
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
+# Replace with your actual API key
+API_KEY = "YOUR_API_KEY"
+# Replace with the desired city and state for traffic data
+CITY = "San Francisco"
+STATE = "CA"
+
+# Define the base URL for the HERE Maps API
+BASE_URL = "https://traffic.ls.hereapi.com/traffic/6.2/flow.json"
+
+def get_traffic_data():
+    """Fetches traffic data for the specified city and state."""
+    params = {
+        "apiKey": API_KEY,
+        "app_id": "YOUR_APP_ID",  # Replace with your actual app ID
+        "app_code": "YOUR_APP_CODE",  # Replace with your actual app code
+        "bbox": f"{CITY},{STATE}"
+    }
+    response = requests.get(BASE_URL, params=params)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error fetching traffic data: {response.status_code}")
+        return None
+
+def process_traffic_data(data):
+    """Processes the traffic data to extract relevant information."""
+    if data:
+        flow_data = data['RWS']['RW']
+        # Extract information for specific areas or road segments as needed
+        # You can use the 'fi' (feature ID) and 'tmc' (traffic message channel)
+        # attributes to filter and process the data.
+
+        # For example, to get data for a specific road segment:
+        for segment in flow_data:
+            if segment['fi'] == "YOUR_SPECIFIC_SEGMENT_ID":
+                # Process segment data
+                # ...
+                return segment
+    else:
+        return None
+
+def update_plot(frame, fig, ax, data):
+    """Updates the plot with new traffic data."""
+    # Fetch the latest traffic data
+    latest_data = process_traffic_data(get_traffic_data())
+
+    if latest_data:
+        # Get the speed information (in km/h) from the traffic data
+        speed = latest_data.get('speed', 0)
+
+        # Update the plot
+        ax.clear()
+        ax.plot([0, 1], [speed, speed], color='green')
+        ax.set_ylabel("Speed (km/h)")
+        ax.set_title(f"Traffic Speed for {CITY}, {STATE}")
+
+# Initialize the plot
+fig, ax = plt.subplots()
+
+# Start the animation
+animation = FuncAnimation(fig, update_plot, fargs=(fig, ax, None), interval=60000)  # Update every 60 seconds
+
+# Show the plot
+plt.show()
