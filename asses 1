@@ -1,0 +1,41 @@
+import requests
+import json
+import time
+
+# Replace with your actual API key
+API_KEY = "234806ec296832953b62deeaef9bd8de"
+# Replace with your desired location
+LOCATION = "New York City, NY"
+
+def get_weather_data():
+    """Fetches weather data from OpenWeatherMap API."""
+    base_url = "http://api.openweathermap.org/data/2.5/weather?"
+    complete_url = base_url + "appid=" + API_KEY + "&q=" + LOCATION
+    response = requests.get(complete_url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("Error fetching weather data.")
+        return None
+
+def display_weather_data(data):
+    """Displays formatted weather data."""
+    if data:
+        main = data['main']
+        weather = data['weather'][0]
+        temp = round(main['temp'] - 273.15, 2)  # Convert Kelvin to Celsius
+        feels_like = round(main['feels_like'] - 273.15, 2)
+        description = weather['description']
+        humidity = main['humidity']
+        print(f"Current weather in {LOCATION}:")
+        print(f"Temperature: {temp} °C")
+        print(f"Feels like: {feels_like} °C")
+        print(f"Description: {description}")
+        print(f"Humidity: {humidity}%")
+    else:
+        print("No weather data available.")
+
+while True:
+    data = get_weather_data()
+    display_weather_data(data)
+    time.sleep(60)  # Update every 60 seconds (1 minute)
