@@ -1,0 +1,69 @@
+import json
+import requests
+
+class InventoryManagementSystem:
+    def __init__(self, api_url):
+        self.api_url = api_url
+
+    def get_inventory(self):
+        """Fetches inventory data from the API."""
+        response = requests.get(self.api_url + "/inventory")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Error fetching inventory: {response.status_code}")
+
+    def add_item(self, item_name, quantity):
+        """Adds a new item to the inventory."""
+        data = {"name": item_name, "quantity": quantity}
+        response = requests.post(self.api_url + "/inventory", json=data)
+        if response.status_code == 201:
+            print(f"Item '{item_name}' added successfully.")
+        else:
+            raise Exception(f"Error adding item: {response.status_code}")
+
+    def update_item(self, item_name, quantity):
+        """Updates the quantity of an existing item."""
+        data = {"quantity": quantity}
+        response = requests.put(self.api_url + f"/inventory/{item_name}", json=data)
+        if response.status_code == 200:
+            print(f"Item '{item_name}' updated successfully.")
+        else:
+            raise Exception(f"Error updating item: {response.status_code}")
+
+    def remove_item(self, item_name):
+        """Removes an item from the inventory."""
+        response = requests.delete(self.api_url + f"/inventory/{item_name}")
+        if response.status_code == 204:
+            print(f"Item '{item_name}' removed successfully.")
+        else:
+            raise Exception(f"Error removing item: {response.status_code}")
+
+    def get_item_details(self, item_name):
+        """Fetches details of a specific item."""
+        response = requests.get(self.api_url + f"/inventory/{item_name}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Error fetching item details: {response.status_code}")
+
+    def display_inventory(self):
+        """Displays the current inventory in a user-friendly format."""
+        inventory = self.get_inventory()
+        print("Current Inventory:")
+        for item in inventory:
+            print(f"- {item['name']}: {item['quantity']}")
+
+if __name__ == "__main__":
+    # Replace with your actual API URL
+    api_url = "http://your-api-endpoint.com" 
+
+    system = InventoryManagementSystem(api_url)
+
+    # Example usage:
+    system.display_inventory()
+    system.add_item("Laptop", 10)
+    system.update_item("Laptop", 15)
+    system.remove_item("Mouse")
+    print(system.get_item_details("Keyboard"))
+    system.display_inventory()
